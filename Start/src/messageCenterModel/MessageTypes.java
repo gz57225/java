@@ -1,15 +1,18 @@
 package messageCenterModel;
 
+import java.util.HashMap;
+
 public enum MessageTypes {
-	CatMeow("CatMeow"), DogBark("DogBark");
+	CatMeow(new HashMap<String, Object>(){{put("sound", "Meow");}}),
+	DogBark(new HashMap<String, Object>(){{put("sound", new Object(){});}});
 	
-	private final String description;
+	private final HashMap<String, Object> vars;
 	
-	private MessageTypes(String description) {
-		this.description = description;
+	private MessageTypes(HashMap<String, Object> vars) {
+		this.vars = vars;
 	}
 	
-	public String getDescription() {
-		return description;
+	public HashMap<String, Object> getVars() {
+		return vars;
 	}
 }
