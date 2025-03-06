@@ -1,13 +1,14 @@
 package keyListenerGame;
 
+import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class InjectionCenter extends Thread {
-	private IMoveNotify i;
+	private ArrayList<IMoveNotify> i;
 	
-	InjectionCenter(IMoveNotify i) {
+	InjectionCenter(ArrayList<IMoveNotify> i) {
 		this.i = i;
 	}
 	
@@ -21,7 +22,8 @@ public class InjectionCenter extends Thread {
                 e.printStackTrace();
             }
             
-            i.apply();
+            i.forEach(process -> process.apply());
+            
             System.out.println("Call to move!");
         }
     }

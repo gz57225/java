@@ -21,8 +21,6 @@ public class GameFrame extends JFrame {
 	private final char summonStarChar = '/';
 	private Star star = null;
 	private static Random rand = new Random();
-	private int width;
-	private int height;
 	private KeyListener myKeyAdapter = new MyKeyAdapter();
 	private GameState state = GameState.ONGOING;
 	
@@ -30,14 +28,12 @@ public class GameFrame extends JFrame {
 		this.sideLength = sideLength;
 		this.snakes = bugs != null? bugs : new ArrayList<Snake>();
 		this.setSize(width, height);
-		this.width = width;
-		this.height = height;
 		this.setBackground(Color.WHITE);
 		this.addKeyListener(myKeyAdapter);
 	}
 	
-	public GameFrame(ArrayList<Snake> bugs) {
-		this(20, 500, 500, bugs);
+	public GameFrame(ArrayList<Snake> snakes) {
+		this(20, 500, 500, snakes);
 	}
 	
 	@Override
@@ -65,7 +61,6 @@ public class GameFrame extends JFrame {
 		snakes.forEach(snake -> snake.draw(g, sideLength));
 		if (star != null) {
 			star.draw(g, sideLength);
-			
 		}
 	}
 
@@ -87,8 +82,20 @@ public class GameFrame extends JFrame {
 	}
 	
 	public void moveNotify() {
-		snakes.forEach(currSnake -> currSnake.move(snakes.stream().filter(snake -> snake != currSnake)));
+		snakes.forEach(currSnake -> currSnake.move());
+		snakes.forEach(currSnake -> {
+			if (currSnake.isOverStar(star)) {
+				currSnake.eatTheStar();
+				star = null;
+			}});
+		state.setIfGameOver(isSnakeCrashed());
 		repaint();
+	}
+
+	public void summonStarNotify() {
+		if (rand.nextInt(20) == 1 && star == null) {
+			star = new Star(rand.nextInt(getWidth() / sideLength - 3), rand.nextInt(getHeight() / sideLength - 3)); 
+		}
 	}
 	
 	public static void coloredOperation(Graphics g, Color color, Runnable runable) {
@@ -100,5 +107,9 @@ public class GameFrame extends JFrame {
 	
 	private void moveNotify(KeyEvent e) {
 		snakes.forEach(currSnake -> currSnake.storeAction(e.getKeyChar()));
+	}
+
+	private boolean isSnakeCrashed() {
+		snakes.stream().anyMatch(currSnake -> currSnake.isCrashed(snakes.stream().filter(snake -> snake != currSnake)));
 	}
 }

@@ -13,12 +13,14 @@ public class Snake {
 	private ArrayList<Point> body;
 	private MovementKey keys;
 	public Direction headingTo;
+	private boolean isExtended;
 	
 	public Snake(int initX, int initY, Color c, MovementKey keys) {
 		this.body = new ArrayList<Point>(Arrays.asList(new Point(initX, initY)));
 		this.keys = keys;
 		this.color = c;
 		this.headingTo = Direction.NOT_A_DIRECTION;
+		this.isExtended = false;
 	}
 	
 	public void draw(Graphics g, int l) {
@@ -31,29 +33,31 @@ public class Snake {
 		}
 	}
 	
-	public boolean move(Stream<Snake> snakes) {
+	public void move() {
 		if (headingTo.notADirection()) {
-			return true;
+			return;
 		}
 		Point point = getHeadPos();
-		Point newPoint = new Point(point.x + headingTo.offsetX, point.y + headingTo.offsetY);
-		if (isCrashed(newPoint, snakes)) {
-			return false;
-		}
 		System.out.println("Snake " + color + " Moved Successfully! From " + point + " To " + newPoint);
-		body.add(newPoint);
+		body.add(new Point(point.x + headingTo.offsetX, point.y + headingTo.offsetY));
 		body.remove(0);
-		return true;
+		return;
 	}
-	
-	
 	
 	public boolean isBodyPart(Point p) {
 		return body.contains(p);
 	}
 	
-	public boolean isCrashed(Point offsetPoint, Stream<Snake> snakes) {
-		return snakes.anyMatch(snake -> snake.isBodyPart(offsetPoint));
+	public boolean isCrashed(Stream<Snake> snakes) {
+		return snakes.anyMatch(snake -> snake.isBodyPart(body.getHeadPos()));
+	}
+
+	public boolean isOverStar(Star star) {
+		return getHeadPos().equals(star);
+	}
+
+	public void eatTheStar() {
+		isExtended = true;
 	}
 	
 	public Point getHeadPos() {

@@ -13,7 +13,7 @@ public class Main {
 		game.setDefaultCloseOperation(GameFrame.EXIT_ON_CLOSE);
 		game.setVisible(true);
 		
-		InjectionCenter center = new InjectionCenter(game::moveNotify);
+		InjectionCenter center = new InjectionCenter(new ArrayList<>(Arrays.asList(game::summonStarNotify, game::moveNotify)));
 		center.run();
 
 	}
