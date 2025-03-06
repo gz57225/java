@@ -24,12 +24,18 @@ public class GameFrame extends JFrame {
 	private KeyListener myKeyAdapter = new MyKeyAdapter();
 	private GameState state = GameState.ONGOING;
 	
+	private int restrictedX;
+	private int restrictedY;
+	
 	public GameFrame(int sideLength, int width, int height, ArrayList<Snake> bugs) {
 		this.sideLength = sideLength;
 		this.snakes = bugs != null? bugs : new ArrayList<Snake>();
 		this.setSize(width, height);
 		this.setBackground(Color.WHITE);
 		this.addKeyListener(myKeyAdapter);
+		
+		this.restrictedX = getWidth() / sideLength - 3;
+		this.restrictedY = getHeight() / sideLength - 3;
 	}
 	
 	public GameFrame(ArrayList<Snake> snakes) {
@@ -88,13 +94,15 @@ public class GameFrame extends JFrame {
 				currSnake.eatTheStar();
 				star = null;
 			}});
-		state.setIfGameOver(isSnakeCrashed());
+		state = GameState.setIfGameOver(isSnakeCrashed());
 		repaint();
 	}
 
 	public void summonStarNotify() {
-		if (rand.nextInt(20) == 1 && star == null) {
-			star = new Star(rand.nextInt(getWidth() / sideLength - 3), rand.nextInt(getHeight() / sideLength - 3)); 
+		System.out.println("Star Summon Process Notified!");
+		if (rand.nextInt(5) == 1 && star == null) {
+			System.out.println("Star Summoned!");
+			star = new Star(rand.nextInt(restrictedX), rand.nextInt(restrictedY)); 
 		}
 	}
 	
@@ -109,7 +117,15 @@ public class GameFrame extends JFrame {
 		snakes.forEach(currSnake -> currSnake.storeAction(e.getKeyChar()));
 	}
 
-	private boolean isSnakeCrashed() {
-		snakes.stream().anyMatch(currSnake -> currSnake.isCrashed(snakes.stream().filter(snake -> snake != currSnake)));
+	private GameOverReason isSnakeCrashed() {
+		 if (snakes.stream().anyMatch(currSnake -> currSnake.isCrashed(snakes.stream().filter(snake -> snake != currSnake), restrictedX, restrictedY))) {
+			 return new GameOverReason
+		 } else {
+			 return new GameOverReason();
+		 }
+	}
+	
+	public boolean isGameOver() {
+		return state == GameState.GAME_OVER;
 	}
 }

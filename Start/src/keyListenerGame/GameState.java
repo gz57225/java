@@ -7,7 +7,7 @@ public enum GameState {
 		this.description = description;
 	}
 	
-	public void setIfGameOver(boolean b) {
-		if (b) {state = GAME_OVER;}
+	public static GameState setIfGameOver(boolean b) {
+		return b ? GAME_OVER : ONGOING;
 	}
 }

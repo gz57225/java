@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class Snake {
@@ -14,13 +13,15 @@ public class Snake {
 	private MovementKey keys;
 	public Direction headingTo;
 	private boolean isExtended;
+	private String name;
 	
-	public Snake(int initX, int initY, Color c, MovementKey keys) {
+	public Snake(String name, int initX, int initY, Color c, MovementKey keys) {
 		this.body = new ArrayList<Point>(Arrays.asList(new Point(initX, initY)));
 		this.keys = keys;
 		this.color = c;
 		this.headingTo = Direction.NOT_A_DIRECTION;
 		this.isExtended = false;
+		this.name = name;
 	}
 	
 	public void draw(Graphics g, int l) {
@@ -33,23 +34,31 @@ public class Snake {
 		}
 	}
 	
-	public void move() {
+	public boolean move() {
 		if (headingTo.notADirection()) {
-			return;
+			return true;
 		}
 		Point point = getHeadPos();
-		System.out.println("Snake " + color + " Moved Successfully! From " + point + " To " + newPoint);
 		body.add(new Point(point.x + headingTo.offsetX, point.y + headingTo.offsetY));
-		body.remove(0);
-		return;
+		if (!isExtended) {
+			body.remove(0);
+		} else {
+			isExtended = false;
+		}
+		System.out.println(this);
+		return true;
 	}
 	
 	public boolean isBodyPart(Point p) {
 		return body.contains(p);
 	}
 	
-	public boolean isCrashed(Stream<Snake> snakes) {
-		return snakes.anyMatch(snake -> snake.isBodyPart(body.getHeadPos()));
+	public GameOverReason isCrashed(Stream<Snake> snakes, int resX, int resY) {
+		if (confrontWall(resX, resY)) {
+			return new GameOverReason("Confront Wall", this, this);
+		} else if (snakes.anyMatch(snake -> snake.isBodyPart(getHeadPos()))) {
+			return new GameOverReason("Crashed", this, )
+		}
 	}
 
 	public boolean isOverStar(Star star) {
@@ -57,10 +66,28 @@ public class Snake {
 	}
 
 	public void eatTheStar() {
+		System.out.println("Star Had Eaten by me, " + this.name);
 		isExtended = true;
 	}
 	
 	public Point getHeadPos() {
 		return body.get(body.size() - 1);
+	}
+	
+	public boolean confrontWall(int resX, int resY) {
+		return resX == getHeadPos().x || resY == getHeadPos().y || 0 == getHeadPos().x || 0 == getHeadPos().y;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public String toString() {
+		String res = "";
+		for (Point p : body) {
+			res += "[" + p.x + ", " + p.y + "]";
+		}
+		return this.name + " " + res;
 	}
 }
